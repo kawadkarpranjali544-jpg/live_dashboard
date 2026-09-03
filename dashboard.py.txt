@@ -1,0 +1,451 @@
+import streamlit as st
+import pandas as pd
+import os
+import time
+from datetime import datetime
+from streamlit_autorefresh import st_autorefresh
+
+# ============================================================
+# PAGE CONFIGURATION
+# ============================================================
+
+st.set_page_config(
+    page_title="GNSS RTCM Monitoring",
+    page_icon="📡",
+    layout="wide"
+)
+
+# ============================================================
+# PROFESSIONAL CSS
+# ============================================================
+
+st.markdown("""
+<style>
+
+.stApp {
+    background-color: #F5F7FA;
+}
+
+.block-container {
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
+}
+
+.main-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1F2937;
+    margin-bottom: 0px;
+}
+
+.subtitle {
+    font-size: 15px;
+    color: #6B7280;
+    margin-top: 4px;
+}
+
+.metric-card {
+    background-color: white;
+    padding: 18px;
+    border-radius: 10px;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0px 2px 6px rgba(0,0,0,0.05);
+}
+
+.section-title {
+    font-size: 21px;
+    font-weight: 650;
+    color: #1F2937;
+    margin-top: 20px;
+}
+
+.status-live {
+    background-color: #DCFCE7;
+    color: #166534;
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.status-waiting {
+    background-color: #FEF3C7;
+    color: #92400E;
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
+# ============================================================
+# FILE
+# ============================================================
+
+RTCM_FILE = "rtcm_live_log.csv"
+
+
+# ============================================================
+# TARGET RTCM MESSAGES
+# ============================================================
+
+TARGET_MESSAGES = [
+    1006,
+    1008,
+    1019,
+    1020,
+    1029,
+    1033,
+    1042,
+    1046,
+    1075,
+    1095,
+    1125
+]
+
+
+# ============================================================
+# LOAD DATA
+# ============================================================
+
+def load_data():
+
+    if not os.path.exists(RTCM_FILE):
+        return pd.DataFrame()
+
+    try:
+
+        df = pd.read_csv(RTCM_FILE)
+
+        if df.empty:
+            return df
+
+        df["RTCM_Message_ID"] = pd.to_numeric(
+            df["RTCM_Message_ID"],
+            errors="coerce"
+        )
+
+        df["Count"] = pd.to_numeric(
+            df["Count"],
+            errors="coerce"
+        )
+
+        return df
+
+    except Exception:
+
+        return pd.DataFrame()
+
+
+df = load_data()
+
+
+# ============================================================
+# HEADER
+# ============================================================
+
+st.markdown(
+    '<div class="main-title">📡 GNSS RTCM Monitoring Dashboard</div>',
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    '<div class="subtitle">'
+    'Real-time monitoring of NTRIP RTCM correction messages'
+    '</div>',
+    unsafe_allow_html=True
+)
+
+st.markdown("---")
+
+
+# ============================================================
+# CONNECTION STATUS
+# ============================================================
+
+if not df.empty:
+
+    st.markdown(
+        '<span class="status-live">● LIVE DATA</span>',
+        unsafe_allow_html=True
+    )
+
+else:
+
+    st.markdown(
+        '<span class="status-waiting">● WAITING FOR RTCM DATA</span>',
+        unsafe_allow_html=True
+    )
+
+
+st.write("")
+
+
+# ============================================================
+# KPI SECTION
+# ============================================================
+
+if not df.empty:
+
+    unique_messages = df["RTCM_Message_ID"].nunique()
+
+    total_records = len(df)
+
+    latest_timestamp = df["Timestamp"].iloc[-1]
+
+    target_received = df[
+        df["RTCM_Message_ID"].isin(TARGET_MESSAGES)
+    ]["RTCM_Message_ID"].nunique()
+
+else:
+
+    unique_messages = 0
+    total_records = 0
+    latest_timestamp = "No data"
+    target_received = 0
+
+
+c1, c2, c3, c4 = st.columns(4)
+
+
+with c1:
+    st.metric(
+        "RTCM Types Received",
+        unique_messages
+    )
+
+with c2:
+    st.metric(
+        "Total RTCM Records",
+        total_records
+    )
+
+with c3:
+    st.metric(
+        "Target Messages Received",
+        f"{target_received}/{len(TARGET_MESSAGES)}"
+    )
+
+with c4:
+    st.metric(
+        "Last Update",
+        latest_timestamp
+    )
+
+
+st.markdown("---")
+
+
+# ============================================================
+# TARGET RTCM MESSAGE MONITOR
+# ============================================================
+
+st.markdown(
+    '<div class="section-title">Required RTCM Message Monitoring</div>',
+    unsafe_allow_html=True
+)
+
+if not df.empty:
+
+    rows = []
+
+    for msg_id in TARGET_MESSAGES:
+
+        msg_data = df[
+            df["RTCM_Message_ID"] == msg_id
+        ]
+
+        if msg_data.empty:
+
+            count = 0
+            status = "NOT RECEIVED"
+
+        else:
+
+            count = int(
+                msg_data["Count"].max()
+            )
+
+            status = "RECEIVED"
+
+        rows.append({
+            "RTCM Message ID": msg_id,
+            "Latest Count": count,
+            "Status": status
+        })
+
+    target_df = pd.DataFrame(rows)
+
+    st.dataframe(
+        target_df,
+        use_container_width=True,
+        hide_index=True
+    )
+
+else:
+
+    st.info(
+        "No RTCM data available yet. "
+        "Start rtcm_monitor.py first."
+    )
+
+
+# ============================================================
+# ALL RTCM MESSAGES
+# ============================================================
+
+st.markdown(
+    '<div class="section-title">All RTCM Messages Received</div>',
+    unsafe_allow_html=True
+)
+
+if not df.empty:
+
+    all_messages = (
+        df.groupby("RTCM_Message_ID")
+        .agg(
+            Latest_Count=("Count", "max"),
+            Records=("Count", "size")
+        )
+        .reset_index()
+        .sort_values("RTCM_Message_ID")
+    )
+
+    all_messages["Status"] = "RECEIVED"
+
+    st.dataframe(
+        all_messages,
+        use_container_width=True,
+        hide_index=True
+    )
+
+else:
+
+    st.info("Waiting for RTCM messages...")
+
+
+# ============================================================
+# RECENT RTCM ACTIVITY
+# ============================================================
+
+st.markdown(
+    '<div class="section-title">Recent RTCM Activity</div>',
+    unsafe_allow_html=True
+)
+
+if not df.empty:
+
+    # -----------------------------------------
+# RECENT RTCM ACTIVITY - LATEST UPDATE ONLY
+# -----------------------------------------
+
+df["Timestamp"] = pd.to_datetime(df["Timestamp"])
+
+# Find the latest timestamp
+latest_timestamp = df["Timestamp"].max()
+
+# Keep only records belonging to the latest second
+latest_second = latest_timestamp.floor("s")
+
+recent_activity = df[
+    df["Timestamp"].dt.floor("s") == latest_second
+].copy()
+
+# Sort newest first
+recent_activity = recent_activity.sort_values(
+    "Timestamp",
+    ascending=False
+)
+
+# ============================================================
+# LATEST RTCM ACTIVITY
+# ============================================================
+
+st.subheader("Latest RTCM Activity")
+
+# Read the latest RTCM log
+try:
+    live_df = pd.read_csv("rtcm_live_log.csv")
+
+    if not live_df.empty:
+
+        # Convert Timestamp column
+        live_df["Timestamp"] = pd.to_datetime(
+            live_df["Timestamp"],
+            errors="coerce"
+        )
+
+        # Remove invalid timestamps
+        live_df = live_df.dropna(subset=["Timestamp"])
+
+        if not live_df.empty:
+
+            # Get the newest timestamp
+            latest_timestamp = live_df["Timestamp"].max()
+
+            # Get the second corresponding to the newest update
+            latest_second = latest_timestamp.floor("s")
+
+            # Keep ONLY the newest second
+            latest_data = live_df[
+                live_df["Timestamp"].dt.floor("s") == latest_second
+            ].copy()
+
+            # Newest first
+            latest_data = latest_data.sort_values(
+                "Timestamp",
+                ascending=False
+            )
+
+            # Show latest update time
+            st.caption(
+                "Latest update: "
+                + latest_timestamp.strftime("%Y-%m-%d %H:%M:%S")
+            )
+
+            # Display ONLY latest data
+            st.dataframe(
+                latest_data,
+                use_container_width=True,
+                hide_index=True
+            )
+
+        else:
+            st.info("Waiting for RTCM data...")
+
+    else:
+        st.info("Waiting for RTCM data...")
+
+except FileNotFoundError:
+    st.warning("rtcm_live_log.csv not found.")
+
+except Exception as e:
+    st.error(f"Error reading RTCM data: {e}")
+
+st.dataframe(
+    recent_activity,
+    use_container_width=True,
+    hide_index=True
+)
+
+    st.dataframe(
+        recent,
+        use_container_width=True,
+        hide_index=True
+    )
+
+else:
+
+    st.info("No recent RTCM activity.")
+
+
+# ============================================================
+# AUTO REFRESH
+# ============================================================
+
+time.sleep(2)
+
+st.rerun()
