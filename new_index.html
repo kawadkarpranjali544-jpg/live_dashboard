@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GNSS / RTCM Live Monitoring Dashboard</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f6fa;color:#1f2937}
+header{background:#fff;border-bottom:1px solid #dbe3ec;padding:24px 36px}
+.title{display:flex;gap:14px;align-items:center}.bar{width:6px;height:42px;background:#1d5fa7;border-radius:3px}
+h1{margin:0;color:#12395f;font-size:28px}.sub{margin:8px 0 0 20px;color:#64748b;font-size:14px}
+main{max-width:1400px;margin:24px auto;padding:0 24px 40px}
+h2{font-size:20px;color:#12395f;border-left:5px solid #1d5fa7;padding-left:12px;margin:28px 0 14px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.card,.tablebox{background:#fff;border:1px solid #dbe3ec;border-radius:10px;box-shadow:0 2px 8px rgba(15,23,42,.05)}
+.card{padding:18px}.label{font-size:12px;color:#64748b;text-transform:uppercase;font-weight:700}.value{margin-top:8px;font-size:25px;font-weight:700;color:#12395f}.active{color:#147a45}
+.tablebox{overflow:hidden}table{width:100%;border-collapse:collapse}th{background:#eef3f8;color:#294b6b;font-size:12px;text-transform:uppercase;padding:12px 14px;text-align:left}td{padding:11px 14px;border-top:1px solid #edf1f5;font-size:13px}
+.yes,.no{display:inline-block;min-width:42px;text-align:center;padding:4px 9px;border-radius:12px;font-weight:700}.yes{background:#e8f6ee;color:#147a45}.no{background:#fcebea;color:#b42318}
+.error{margin-top:16px;padding:16px;background:#fff4f2;color:#9f2d20;border:1px solid #f2c6c0;border-radius:8px}
+.footer{text-align:center;color:#64748b;font-size:12px;margin-top:22px}
+@media(max-width:1000px){.grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){.grid{grid-template-columns:1fr}header{padding:18px}main{padding:0 12px 30px}h1{font-size:22px}}
+</style>
+</head>
+<body>
+<header><div class="title"><div class="bar"></div><div><h1>GNSS / RTCM Live Monitoring Dashboard</h1><div class="sub">Recorded GGA driven NTRIP correction monitoring</div></div></div></header>
+<main>
+<h2>System Overview</h2>
+<div class="grid">
+<div class="card"><div class="label">System</div><div class="value">GNSS / RTCM</div></div>
+<div class="card"><div class="label">Monitoring Mode</div><div class="value">NTRIP</div></div>
+<div class="card"><div class="label">Target Message Types</div><div class="value">20</div></div>
+<div class="card"><div class="label">Monitoring Status</div><div id="systemStatus" class="value active">Checking...</div></div>
+</div>
+<h2>Key Performance Indicators</h2>
+<div class="grid">
+<div class="card"><div class="label">Active RTCM Messages</div><div id="active" class="value">0</div></div>
+<div class="card"><div class="label">Inactive RTCM Messages</div><div id="inactive" class="value">20</div></div>
+<div class="card"><div class="label">Total RTCM Messages</div><div id="total" class="value">0</div></div>
+<div class="card"><div class="label">Message Availability</div><div id="availability" class="value">0%</div></div>
+</div>
+<h2>RTCM Message Status</h2><div class="tablebox"><table><thead><tr><th>RTCM ID</th><th>Description</th><th>Status</th><th>Count</th></tr></thead><tbody id="targetTable"><tr><td colspan="4">Loading...</td></tr></tbody></table></div>
+<h2>All RTCM Messages Received</h2><div class="tablebox"><table><thead><tr><th>RTCM ID</th><th>Description</th><th>Total Count</th><th>Status</th></tr></thead><tbody id="allTable"><tr><td colspan="4">Loading...</td></tr></tbody></table></div>
+<h2>Recent RTCM Activity</h2><div class="tablebox"><table><thead><tr><th>Timestamp</th><th>RTCM ID</th><th>Description</th><th>Count</th><th>Status</th></tr></thead><tbody id="recentTable"><tr><td colspan="5">Loading...</td></tr></tbody></table></div>
+<div id="errorBox"></div>
+<div class="footer">GitHub Actions RTCM log | Dashboard refresh: 10 seconds | Last update: <span id="lastUpdate">--</span></div>
+</main>
+<script>
+const CSV_URL="https://raw.githubusercontent.com/kawadkarpranjali544-jpg/live_dashboard/main/rtcm_live_log.csv";
+const TARGET={
+1005:"Reference Station ARP",1006:"Reference Station ARP + Antenna Height",1008:"Antenna Descriptor & Serial Number",
+1013:"System Parameters",1019:"GPS Satellite Ephemeris",1020:"GLONASS Satellite Ephemeris",1029:"Unicode Text String",
+1032:"Physical Reference Station",1033:"Receiver & Antenna Descriptor",1042:"BeiDou Satellite Ephemeris",1044:"QZSS Satellite Ephemeris",
+1045:"Galileo F/NAV Ephemeris",1046:"Galileo I/NAV Ephemeris",1075:"GPS MSM5 Observation",1085:"GLONASS MSM5 Observation",
+1095:"Galileo MSM5 Observation",1115:"QZSS MSM5 Observation",1125:"BeiDou MSM5 Observation",1135:"NavIC/IRNSS MSM5 Observation",
+1230:"GLONASS Code-Phase Biases"
+};
+function csvLine(s){let a=[],v="",q=false;for(let i=0;i<s.length;i++){let c=s[i];if(c=='"'){if(q&&s[i+1]=='"'){v+='"';i++}else q=!q}else if(c==","&&!q){a.push(v);v=""}else v+=c}a.push(v);return a}
+function csv(s){let l=s.split(/\r?\n/).filter(x=>x.trim());if(l.length<2)return[];let h=csvLine(l[0]);return l.slice(1).map(x=>{let v=csvLine(x),r={};h.forEach((k,i)=>r[k]=v[i]||"");return r})}
+function esc(x){return String(x??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")}
+function render(rows){
+ let counts={};rows.forEach(r=>{let id=Number(r.RTCM_Message_ID),c=Number(r.Count);if(Number.isFinite(id))counts[id]=Math.max(counts[id]||0,Number.isFinite(c)?c:0)});
+ let ids=Object.keys(TARGET).map(Number),active=0;
+ document.getElementById("targetTable").innerHTML=ids.map(id=>{let c=counts[id]||0,on=c>0;if(on)active++;return `<tr><td><b>${id}</b></td><td>${TARGET[id]}</td><td><span class="${on?"yes":"no"}">${on?"YES":"NO"}</span></td><td>${c}</td></tr>`}).join("");
+ let all=Object.keys(counts).map(Number).sort((a,b)=>a-b);
+ document.getElementById("allTable").innerHTML=all.map(id=>`<tr><td><b>${id}</b></td><td>${esc(TARGET[id]||"Other RTCM Message")}</td><td>${counts[id]}</td><td><span class="${TARGET[id]?"yes":"no"}">${TARGET[id]?"TARGET":"OTHER"}</span></td></tr>`).join("")||'<tr><td colspan="4">No RTCM messages received</td></tr>';
+ let max=rows.reduce((m,r)=>Math.max(m,Number(r.Count)||0),0),recent=rows.filter(r=>Number(r.Count)===max).slice(-30);
+ document.getElementById("recentTable").innerHTML=recent.map(r=>{let id=Number(r.RTCM_Message_ID),t=!!TARGET[id];return `<tr><td>${esc(r.Timestamp)}</td><td><b>${id}</b></td><td>${esc(TARGET[id]||r.Description||"Other RTCM Message")}</td><td>${esc(r.Count)}</td><td><span class="${t?"yes":"no"}">${t?"TARGET":"OTHER"}</span></td></tr>`}).join("")||'<tr><td colspan="5">No recent activity</td></tr>';
+ document.getElementById("active").textContent=active;document.getElementById("inactive").textContent=20-active;document.getElementById("total").textContent=all.length;document.getElementById("availability").textContent=Math.round(active/20*100)+"%";document.getElementById("systemStatus").textContent=rows.length?"Active":"Waiting";
+}
+async function load(){try{let r=await fetch(CSV_URL+"?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);render(csv(await r.text()));document.getElementById("errorBox").innerHTML="";document.getElementById("lastUpdate").textContent=new Date().toLocaleString()}catch(e){document.getElementById("systemStatus").textContent="Waiting";document.getElementById("errorBox").innerHTML='<div class="error">Unable to load the latest RTCM data. The dashboard will retry automatically.<br><br><b>Error:</b> '+esc(e.message)+'</div>'}}
+load();setInterval(load,10000);
+</script>
+</body>
+</html>
