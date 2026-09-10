@@ -52,3 +52,4 @@ jobs:
           git add rtcm_live_log.csv
           git diff --cached --quiet || git commit -m "Update live RTCM data"
           git push
+          
