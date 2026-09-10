@@ -2,9 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>GNSS RTCM Monitoring Dashboard</title>
 
@@ -165,12 +163,18 @@
 
 <div class="header">
     <h1>📡 GNSS RTCM Monitoring Dashboard</h1>
+
     <p>
         NTRIP-based GNSS correction monitoring and visualization
     </p>
 </div>
 
+
 <div class="container">
+
+    <!-- =========================
+         SYSTEM OVERVIEW
+    ========================== -->
 
     <div class="section-title">
         System Overview
@@ -179,29 +183,62 @@
     <div class="cards">
 
         <div class="card">
-            <div class="card-title">System</div>
-            <div class="card-value">GNSS / RTCM</div>
+
+            <div class="card-title">
+                System
+            </div>
+
+            <div class="card-value">
+                GNSS / RTCM
+            </div>
+
         </div>
 
-        <div class="card">
-            <div class="card-title">Monitoring Mode</div>
-            <div class="card-value">NTRIP</div>
-        </div>
 
         <div class="card">
-            <div class="card-title">Target Message Types</div>
-            <div class="card-value">20</div>
+
+            <div class="card-title">
+                Monitoring Mode
+            </div>
+
+            <div class="card-value">
+                NTRIP
+            </div>
+
         </div>
 
+
         <div class="card">
-            <div class="card-title">Monitoring Status</div>
+
+            <div class="card-title">
+                Target Message Types
+            </div>
+
+            <div class="card-value">
+                20
+            </div>
+
+        </div>
+
+
+        <div class="card">
+
+            <div class="card-title">
+                Monitoring Status
+            </div>
+
             <div class="card-value status-active">
                 Active
             </div>
+
         </div>
 
     </div>
 
+
+    <!-- =========================
+         KPI SECTION
+    ========================== -->
 
     <div class="section-title">
         Key Performance Indicators
@@ -210,6 +247,7 @@
     <div class="cards">
 
         <div class="card">
+
             <div class="card-title">
                 Active RTCM Messages
             </div>
@@ -218,9 +256,12 @@
                  class="card-value">
                 -
             </div>
+
         </div>
 
+
         <div class="card">
+
             <div class="card-title">
                 Inactive RTCM Messages
             </div>
@@ -229,9 +270,12 @@
                  class="card-value">
                 -
             </div>
+
         </div>
 
+
         <div class="card">
+
             <div class="card-title">
                 Total RTCM Messages
             </div>
@@ -240,9 +284,12 @@
                  class="card-value">
                 -
             </div>
+
         </div>
 
+
         <div class="card">
+
             <div class="card-title">
                 Message Availability
             </div>
@@ -251,35 +298,61 @@
                  class="card-value">
                 -
             </div>
+
         </div>
 
     </div>
 
 
+    <!-- =========================
+         RTCM MESSAGE STATUS
+    ========================== -->
+
     <div class="section-title">
         RTCM Message Status
     </div>
 
+
     <div class="table-card">
 
         <table>
 
             <thead>
+
                 <tr>
-                    <th>RTCM Message ID</th>
-                    <th>Description</th>
-                    <th>Status</th>
-                    <th>Count</th>
+
+                    <th>
+                        RTCM Message ID
+                    </th>
+
+                    <th>
+                        Description
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                    <th>
+                        Count
+                    </th>
+
                 </tr>
+
             </thead>
+
 
             <tbody id="messageStatus">
 
                 <tr>
+
                     <td colspan="4"
                         class="loading">
+
                         Loading RTCM data...
+
                     </td>
+
                 </tr>
 
             </tbody>
@@ -289,32 +362,63 @@
     </div>
 
 
+    <!-- =========================
+         LATEST RTCM ACTIVITY
+    ========================== -->
+
     <div class="section-title">
-        Latest RTCM Activity
+        Latest RTCM Activity — IST
     </div>
+
 
     <div class="table-card">
 
         <table>
 
             <thead>
+
                 <tr>
-                    <th>Timestamp</th>
-                    <th>RTCM ID</th>
-                    <th>Description</th>
-                    <th>Count</th>
-                    <th>Message Length</th>
-                    <th>Status</th>
+
+                    <th>
+                        Timestamp (IST)
+                    </th>
+
+                    <th>
+                        RTCM ID
+                    </th>
+
+                    <th>
+                        Description
+                    </th>
+
+                    <th>
+                        Count
+                    </th>
+
+                    <th>
+                        Message Length
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
                 </tr>
+
             </thead>
+
 
             <tbody id="latestActivity">
 
                 <tr>
+
                     <td colspan="6"
                         class="loading">
+
                         Loading latest RTCM activity...
+
                     </td>
+
                 </tr>
 
             </tbody>
@@ -326,13 +430,25 @@
 </div>
 
 
+<!-- =========================
+     FOOTER
+========================== -->
+
 <div class="footer">
+
     GNSS RTCM Monitoring System |
-    Python + NTRIP + RTCM + Streamlit
+    Python + NTRIP + RTCM + Dashboard |
+    All timestamps displayed in IST (UTC+05:30)
+
 </div>
 
 
 <script>
+
+
+/* =========================================================
+   TARGET RTCM MESSAGE TYPES
+========================================================= */
 
 const TARGET_MESSAGES = {
 
@@ -375,89 +491,234 @@ const TARGET_MESSAGES = {
     1135: "NavIC/IRNSS MSM5 Observation",
 
     1230: "GLONASS Code-Phase Biases"
+
 };
 
 
-function parseCSV(text) {
+/* =========================================================
+   UTC → IST CONVERSION
+=========================================================
 
-    const lines = text.trim().split(/\r?\n/);
+   The cloud monitor stores timestamps in UTC.
 
-    if (lines.length < 2) {
-        return [];
+   Example:
+
+   UTC:
+   2026-09-08 10:42:25.314
+
+   IST:
+   08/09/2026, 16:12:25
+
+   IST = UTC + 05:30
+========================================================= */
+
+function convertUTCtoIST(timestamp) {
+
+    if (!timestamp) {
+        return "-";
     }
 
-    const headers = lines[0].split(",");
 
-    return lines.slice(1).map(line => {
+    /*
+       Convert:
 
-        const values = line.split(",");
+       2026-09-08 10:42:25.314
 
-        let row = {};
+       into:
 
-        headers.forEach((header, index) => {
+       2026-09-08T10:42:25.314Z
 
-            row[header.trim()] =
-                values[index] !== undefined
-                ? values[index].trim()
-                : "";
+       The Z tells JavaScript that the input
+       timestamp is UTC.
+    */
 
-        });
+    const cleanedTimestamp =
+        timestamp
+            .trim()
+            .replace(" ", "T");
 
-        return row;
 
-    });
+    const utcDate =
+        new Date(cleanedTimestamp + "Z");
+
+
+    /*
+       If timestamp cannot be parsed,
+       return the original value.
+    */
+
+    if (isNaN(utcDate.getTime())) {
+
+        return timestamp;
+
+    }
+
+
+    /*
+       Convert UTC to Indian Standard Time.
+
+       Asia/Kolkata = IST = UTC + 05:30
+    */
+
+    return new Intl.DateTimeFormat(
+        "en-IN",
+        {
+            timeZone: "Asia/Kolkata",
+
+            year: "numeric",
+
+            month: "2-digit",
+
+            day: "2-digit",
+
+            hour: "2-digit",
+
+            minute: "2-digit",
+
+            second: "2-digit",
+
+            hour12: false
+        }
+    ).format(utcDate);
 
 }
 
+
+/* =========================================================
+   CSV PARSER
+========================================================= */
+
+function parseCSV(text) {
+
+    const lines =
+        text
+            .trim()
+            .split(/\r?\n/);
+
+
+    if (lines.length < 2) {
+
+        return [];
+
+    }
+
+
+    const headers =
+        lines[0].split(",");
+
+
+    return lines
+        .slice(1)
+        .map(line => {
+
+            const values =
+                line.split(",");
+
+
+            let row = {};
+
+
+            headers.forEach(
+                (header, index) => {
+
+                    row[header.trim()] =
+                        values[index] !== undefined
+                        ? values[index].trim()
+                        : "";
+
+                }
+            );
+
+
+            return row;
+
+        });
+
+}
+
+
+/* =========================================================
+   LOAD DASHBOARD DATA
+========================================================= */
 
 async function loadDashboard() {
 
     try {
 
+        /*
+           Load the latest CSV.
+
+           Date.now() prevents browser caching.
+        */
+
         const response =
-            await fetch("rtcm_live_log.csv?time=" + Date.now());
+            await fetch(
+                "rtcm_live_log.csv?time=" + Date.now()
+            );
+
 
         if (!response.ok) {
-            throw new Error("CSV could not be loaded");
+
+            throw new Error(
+                "CSV could not be loaded"
+            );
+
         }
+
 
         const text =
             await response.text();
 
+
         const data =
             parseCSV(text);
 
+
         if (!data.length) {
+
             return;
+
         }
 
 
-        /* Convert message IDs */
+        /* =============================================
+           CONVERT NUMERIC CSV VALUES
+        ============================================== */
 
         data.forEach(row => {
 
             row.RTCM_Message_ID =
-                Number(row.RTCM_Message_ID);
+                Number(
+                    row.RTCM_Message_ID
+                );
+
 
             row.Count =
-                Number(row.Count);
+                Number(
+                    row.Count
+                );
+
 
             row.Message_Length =
-                Number(row.Message_Length);
+                Number(
+                    row.Message_Length
+                );
 
         });
 
 
-        /* -----------------------------
-           Calculate message counts
-        ----------------------------- */
+        /* =============================================
+           CALCULATE MESSAGE COUNTS
+        ============================================== */
 
         const counts = {};
+
 
         data.forEach(row => {
 
             const id =
                 row.RTCM_Message_ID;
+
 
             counts[id] =
                 (counts[id] || 0) + 1;
@@ -465,41 +726,57 @@ async function loadDashboard() {
         });
 
 
+        /* =============================================
+           KPI CALCULATION
+        ============================================== */
+
         let active = 0;
+
 
         Object.keys(TARGET_MESSAGES)
             .forEach(id => {
 
                 if (counts[id] > 0) {
+
                     active++;
+
                 }
 
             });
 
 
         const total =
-            Object.keys(TARGET_MESSAGES).length;
+            Object.keys(
+                TARGET_MESSAGES
+            ).length;
+
 
         const inactive =
             total - active;
 
+
         const availability =
-            ((active / total) * 100).toFixed(1);
+            (
+                (active / total) * 100
+            ).toFixed(1);
 
 
         document.getElementById(
             "activeMessages"
-        ).innerText = active;
+        ).innerText =
+            active;
 
 
         document.getElementById(
             "inactiveMessages"
-        ).innerText = inactive;
+        ).innerText =
+            inactive;
 
 
         document.getElementById(
             "totalMessages"
-        ).innerText = total;
+        ).innerText =
+            total;
 
 
         document.getElementById(
@@ -508,28 +785,33 @@ async function loadDashboard() {
             availability + "%";
 
 
-        /* -----------------------------
-           RTCM Message Status
-        ----------------------------- */
+        /* =============================================
+           RTCM MESSAGE STATUS TABLE
+        ============================================== */
 
         const statusTable =
             document.getElementById(
                 "messageStatus"
             );
 
+
         statusTable.innerHTML = "";
 
 
-        Object.entries(TARGET_MESSAGES)
-            .forEach(([id, description]) => {
+        Object.entries(
+            TARGET_MESSAGES
+        ).forEach(
+            ([id, description]) => {
 
                 const count =
                     counts[id] || 0;
+
 
                 const status =
                     count > 0
                     ? "YES"
                     : "NO";
+
 
                 const statusClass =
                     count > 0
@@ -538,42 +820,61 @@ async function loadDashboard() {
 
 
                 const row =
-                    document.createElement("tr");
+                    document.createElement(
+                        "tr"
+                    );
 
 
                 row.innerHTML = `
 
-                    <td>${id}</td>
+                    <td>
+                        ${id}
+                    </td>
 
-                    <td>${description}</td>
+                    <td>
+                        ${description}
+                    </td>
 
                     <td class="${statusClass}">
                         ${status}
                     </td>
 
-                    <td>${count}</td>
+                    <td>
+                        ${count}
+                    </td>
 
                 `;
 
 
-                statusTable.appendChild(row);
+                statusTable.appendChild(
+                    row
+                );
 
-            });
+            }
+        );
 
 
-        /* -----------------------------
-           Latest RTCM Activity
-           ----------------------------- */
+        /* =============================================
+           LATEST RTCM ACTIVITY
+
+           The CSV Count field is cumulative.
+
+           Therefore, the highest Count represents
+           the newest available RTCM activity batch.
+        ============================================== */
 
         const latestCount =
             Math.max(
-                ...data.map(row => row.Count)
+                ...data.map(
+                    row => row.Count
+                )
             );
 
 
         const latestRows =
             data.filter(
-                row => row.Count === latestCount
+                row =>
+                    row.Count === latestCount
             );
 
 
@@ -582,53 +883,76 @@ async function loadDashboard() {
                 "latestActivity"
             );
 
+
         activityTable.innerHTML = "";
 
 
         latestRows.forEach(row => {
 
             const tr =
-                document.createElement("tr");
+                document.createElement(
+                    "tr"
+                );
 
 
             tr.innerHTML = `
 
-                <td>${row.Timestamp}</td>
+                <td>
+                    ${convertUTCtoIST(
+                        row.Timestamp
+                    )}
+                </td>
 
-                <td>${row.RTCM_Message_ID}</td>
+                <td>
+                    ${row.RTCM_Message_ID}
+                </td>
 
-                <td>${row.Description}</td>
+                <td>
+                    ${row.Description}
+                </td>
 
-                <td>${row.Count}</td>
+                <td>
+                    ${row.Count}
+                </td>
 
-                <td>${row.Message_Length}</td>
+                <td>
+                    ${row.Message_Length}
+                </td>
 
-                <td>${row.Status}</td>
+                <td>
+                    ${row.Status}
+                </td>
 
             `;
 
 
-            activityTable.appendChild(tr);
+            activityTable.appendChild(
+                tr
+            );
 
         });
 
     }
 
+
     catch (error) {
 
         console.error(error);
+
 
         document.getElementById(
             "messageStatus"
         ).innerHTML = `
 
             <tr>
+
                 <td colspan="4"
                     class="loading">
 
                     Unable to load RTCM data.
 
                 </td>
+
             </tr>
 
         `;
@@ -638,17 +962,24 @@ async function loadDashboard() {
 }
 
 
-/* Initial load */
+/* =========================================================
+   INITIAL LOAD
+========================================================= */
 
 loadDashboard();
 
 
-/* Refresh every 3 seconds */
+/* =========================================================
+   AUTOMATIC REFRESH
+
+   Dashboard refreshes every 3 seconds.
+========================================================= */
 
 setInterval(
     loadDashboard,
     3000
 );
+
 
 </script>
 
