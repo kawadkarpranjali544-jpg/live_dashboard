@@ -43,7 +43,7 @@ jobs:
           MAX_ROWS: "1000"
           RECONNECT_DELAY: "10"
         run: |
-          python cloud_rtcm_monitor.py
+          timeout 7m python cloud_rtcm_monitor.py || true
 
       - name: Commit latest RTCM data
         run: |
