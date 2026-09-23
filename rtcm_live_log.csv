@@ -1,5 +1,4 @@
 Timestamp,RTCM_Message_ID,Description,Count,Message_Length,Status
-2026-09-23 01:27:50.312,1008,Antenna Descriptor & Serial Number,283,32,TARGET
 2026-09-23 01:27:50.312,1033,Receiver & Antenna Descriptor,283,35,TARGET
 2026-09-23 01:27:50.313,1075,GPS MSM5 Observation,283,304,TARGET
 2026-09-23 01:27:50.315,1125,BeiDou MSM5 Observation,283,393,TARGET
@@ -999,3 +998,4 @@ Timestamp,RTCM_Message_ID,Description,Count,Message_Length,Status
 2026-09-23 06:17:12.194,1046,Galileo I/NAV Ephemeris,26,69,TARGET
 2026-09-23 06:17:12.194,1046,Galileo I/NAV Ephemeris,27,69,TARGET
 2026-09-23 06:17:12.195,1046,Galileo I/NAV Ephemeris,28,69,TARGET
+2026-09-23 06:19:54.772,1029,Unicode Text String,2,28,TARGET
