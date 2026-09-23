@@ -1,9 +1,4 @@
 Timestamp,RTCM_Message_ID,Description,Count,Message_Length,Status
-2026-09-23 01:29:02.330,1008,Antenna Descriptor & Serial Number,355,32,TARGET
-2026-09-23 01:29:02.331,1033,Receiver & Antenna Descriptor,355,35,TARGET
-2026-09-23 01:29:02.332,1075,GPS MSM5 Observation,355,304,TARGET
-2026-09-23 01:29:02.333,1125,BeiDou MSM5 Observation,355,393,TARGET
-2026-09-23 01:29:02.334,1095,Galileo MSM5 Observation,355,356,TARGET
 2026-09-23 01:29:03.304,1006,Reference Station ARP + Antenna Height,356,27,TARGET
 2026-09-23 01:29:03.304,1008,Antenna Descriptor & Serial Number,356,32,TARGET
 2026-09-23 01:29:03.304,1033,Receiver & Antenna Descriptor,356,35,TARGET
@@ -999,3 +994,8 @@ Timestamp,RTCM_Message_ID,Description,Count,Message_Length,Status
 2026-09-23 06:21:42.518,1042,BeiDou Satellite Ephemeris,215,70,TARGET
 2026-09-23 06:21:42.518,1019,GPS Satellite Ephemeris,165,67,TARGET
 2026-09-23 06:21:46.934,1029,Unicode Text String,11,28,TARGET
+2026-09-23 06:22:12.295,1019,GPS Satellite Ephemeris,166,67,TARGET
+2026-09-23 06:22:12.321,1020,GLONASS Satellite Ephemeris,8,51,TARGET
+2026-09-23 06:22:12.437,1019,GPS Satellite Ephemeris,167,67,TARGET
+2026-09-23 06:22:42.329,1020,GLONASS Satellite Ephemeris,9,51,TARGET
+2026-09-23 06:22:42.941,1029,Unicode Text String,12,28,TARGET
